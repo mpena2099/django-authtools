@@ -188,9 +188,16 @@ class LoginView(AuthDecoratorsMixin, SuccessURLAllowedHostsMixin,
         else:
             return self.allow_authenticated
 
+    @property
+    def user_authenticated(self):
+        user = self.request.user
+        return (
+            user.is_authenticated() if callable(user.is_authenticated) else user.is_authenticated
+        )
+
     def dispatch(self, *args, **kwargs):
         allow_authenticated = self.get_allow_authenticated()
-        if not allow_authenticated and self.request.user.is_authenticated():
+        if not allow_authenticated and self.user_authenticated: 
             return redirect(self.get_success_url())
         return super(LoginView, self).dispatch(*args, **kwargs)
 
